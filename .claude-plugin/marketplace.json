@@ -1,0 +1,19 @@
+{
+  "name": "cc-productivity-plugins",
+  "owner": {
+    "name": "ACCSCI",
+    "email": "ACCSCI@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "sync-skills",
+      "source": "./plugins/sync-skills",
+      "description": "Reconcile skills between ~/.agents/skills/ (authoritative) and ~/.claude/skills/ (runtime) — handle junctions, migrations, and lockfile backfill on Windows/macOS/Linux."
+    },
+    {
+      "name": "speedpr",
+      "source": "./plugins/speedpr",
+      "description": "Drive the current branch to 'Ready To Merge': detect phase A→B→C→D, handle review threads (GraphQL), CI, and merge conflicts. Supports /loop for polling and an `auto` mode for merging."
+    }
+  ]
+}

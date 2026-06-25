@@ -1,0 +1,16 @@
+{
+  "name": "sync-skills",
+  "version": "1.0.0",
+  "description": "Reconcile skills between ~/.agents/skills/ (authoritative) and ~/.claude/skills/ (runtime). Creates Windows directory junctions (mklink /J) for missing entries, migrates orphan real directories across scopes, repairs wrong-target junctions, and backfills ~/.agents/.skill-lock.json for migrated entries. Supports --scope global|project and --dry-run.",
+  "author": {
+    "name": "ACCSCI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "skill-management",
+    "windows-junctions",
+    "symlink-sync"
+  ],
+  "homepage": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/sync-skills"
+}

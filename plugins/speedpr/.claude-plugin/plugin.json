@@ -1,0 +1,18 @@
+{
+  "name": "speedpr",
+  "version": "1.0.0",
+  "description": "Automate the current working branch to 'Ready To Merge' status. Auto-detects phase (A:uncommitted → B:unpushed → C:no PR → D:PR exists), handles review threads via GitHub GraphQL, CI failures, and merge conflicts. Supports /loop for polling and an `auto` argument to enable automatic merging.",
+  "author": {
+    "name": "ACCSCI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "github",
+    "pull-request",
+    "automation",
+    "ci",
+    "review"
+  ],
+  "homepage": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/speedpr"
+}
