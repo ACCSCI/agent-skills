@@ -1,0 +1,17 @@
+{
+  "name": "app-factory",
+  "version": "1.0.0",
+  "description": "AI Native project scaffolding factory. Initialize a project, configure tooling (lint/format/hooks/CI/deploy), analyze capabilities, recommend stack, install official skills, and generate project-specific CLAUDE.md. Supports Interactive/Auto modes, 10 preset scenarios (SaaS/AI/Electron/Chrome Extension/Blog/Admin/API/CLI/SDK), and 4 deploy platform templates (Cloudflare/Vercel/AWS/Docker). Includes upgrade mode for existing projects.",
+  "author": {
+    "name": "ACCSCI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "scaffold",
+    "project-initialization",
+    "capability-driven",
+    "engineering-tooling"
+  ],
+  "homepage": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/app-factory"
+}

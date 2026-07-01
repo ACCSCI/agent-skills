@@ -7,6 +7,7 @@ as a Plugin Marketplace so others can install them with a single command.
 |---|---|
 | **sync-skills** | Reconcile `~/.agents/skills/` (authoritative) and `~/.claude/skills/` (runtime) — handle Windows directory junctions, migrate orphan skills, backfill the lockfile. |
 | **speedpr** | Drive the current branch to "Ready To Merge": auto-detect phase (uncommitted → unpushed → no PR → PR exists), handle review threads via GraphQL, CI, and merge conflicts. |
+| **app-factory** | AI Native project scaffolding factory. Initialize a project, configure tooling (lint/format/hooks/CI/deploy), analyze capabilities, recommend stack, install official skills, and generate a project-specific `CLAUDE.md`. Supports `Interactive`/`Auto` modes, 10 preset scenarios (SaaS / AI / Electron / Chrome Extension / Blog / Admin / API / CLI / SDK), and 4 deploy platform templates (Cloudflare / Vercel / AWS / Docker). Also detects existing projects and suggests safe upgrades. |
 
 ## Installation
 
@@ -19,6 +20,7 @@ You have two options — pick whichever fits your setup.
 /plugin marketplace browse cc-productivity-plugins
 /plugin install sync-skills@cc-productivity-plugins
 /plugin install speedpr@cc-productivity-plugins
+/plugin install app-factory@cc-productivity-plugins
 ```
 
 That's it. The skills land in `~/.claude/skills/` and are picked up by the
@@ -36,9 +38,11 @@ the `skills/` directories into `~/.claude/skills/`:
 git clone https://github.com/ACCSCI/cc-productivity-plugins.git
 cp -r cc-productivity-plugins/skills/sync-skills ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/speedpr     ~/.claude/skills/
+cp -r cc-productivity-plugins/skills/app-factory ~/.claude/skills/
 # Windows (PowerShell):
 #   Copy-Item -Recurse cc-productivity-plugins\skills\sync-skills $HOME\.claude\skills\
 #   Copy-Item -Recurse cc-productivity-plugins\skills\speedpr     $HOME\.claude\skills\
+#   Copy-Item -Recurse cc-productivity-plugins\skills\app-factory $HOME\.claude\skills\
 ```
 
 Restart Claude Code (or type `/`) and the skills are available.
@@ -76,6 +80,20 @@ invoke the skill.
 - **A git repository** — the skill expects to be run inside a local repo
   with a remote. Outside a repo, it'll tell you so.
 
+### `app-factory`
+
+- **Node.js 22+ and pnpm** — the skill scaffolds modern TypeScript projects.
+  Enable pnpm via `corepack enable` once Node 22 is installed.
+- **`npx` access to the `skills` CLI** — used to install official
+  capability skills (Cloudflare / Hono / Drizzle / Better Auth / TanStack /
+  Turborepo / etc.) into the target project. The skill installs `find-skills`
+  first and queries it for every other skill decision.
+- **Git** — the skill initializes a git repo if missing and configures
+  Lefthook-based pre-commit / pre-push hooks.
+- **A deploy-platform account (optional)** — only needed if you choose a
+  managed platform during scaffolding (Cloudflare / Vercel / AWS). The
+  Docker template works without any account.
+
 ## Project layout
 
 ```
@@ -86,12 +104,16 @@ cc-productivity-plugins/
 │   ├── sync-skills/
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/sync-skills/{SKILL.md, README.md, scripts/}
-│   └── speedpr/
+│   ├── speedpr/
+│   │   ├── .claude-plugin/plugin.json
+│   │   └── skills/speedpr/SKILL.md
+│   └── app-factory/
 │       ├── .claude-plugin/plugin.json
-│       └── skills/speedpr/SKILL.md
+│       └── skills/app-factory/SKILL.md
 ├── skills/                       ← Mirror of plugins/*/skills/* for manual install
 │   ├── sync-skills/
-│   └── speedpr/
+│   ├── speedpr/
+│   └── app-factory/
 ├── README.md
 ├── LICENSE                       ← MIT
 └── .gitignore
