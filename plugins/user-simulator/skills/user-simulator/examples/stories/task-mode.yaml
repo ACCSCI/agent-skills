@@ -1,0 +1,94 @@
+schema_version: "1.0"
+kind: story
+id: write-chapter-flow
+name: "小说创作主流程验证"
+mode: task
+persona_ref: examples/personas/first-time-user.yaml
+preconditions:
+  - 已登录测试账号
+  - 工作区为空
+start_path: "/workspace/empty"
+seed: 42
+monitoring:
+  checkpoint_policy: key_nodes
+  capture_performance: true
+  screenshot_mode: viewport
+task: |
+  在该写作工具中完成一次小说创作主流程：新建章节 → 输入正文 → 使用 AI 续写 → 保存并验证 autosave。
+steps:
+  - id: create-chapter
+    instruction: "创建一个名为 'Chapter 1: 序章' 的新章节"
+    key_node: true
+    max_actions: 8
+    on_failure: stop
+    assertions:
+      - id: chapter-exists
+        kind: visible
+        target: "新章节标题"
+        locator: role
+        operator: contains
+        expected: "Chapter 1: 序章"
+        timeout_ms: 5000
+        severity_on_fail: S1
+        evidence: [screenshot, snapshot]
+
+  - id: type-content
+    instruction: "在编辑器中输入一段中文正文（不少于 200 字）"
+    key_node: true
+    max_actions: 12
+    on_failure: stop
+    assertions:
+      - id: editor-non-empty
+        kind: state
+        target: "编辑器正文长度"
+        operator: gte
+        expected: 200
+        severity_on_fail: S1
+        evidence: [screenshot, snapshot]
+      - id: no-page-error
+        kind: no_page_error
+        operator: equals
+        expected: true
+        severity_on_fail: S1
+
+  - id: ai-continue
+    instruction: "使用 AI 续写功能，让模型基于当前正文续写一段"
+    key_node: true
+    max_actions: 20
+    on_failure: continue
+    assertions:
+      - id: ai-output-non-empty
+        kind: state
+        target: "AI 续写结果长度"
+        operator: gte
+        expected: 50
+        timeout_ms: 15000
+        severity_on_fail: S2
+        evidence: [screenshot]
+      - id: no-console-error-ai
+        kind: no_console_error
+        operator: equals
+        expected: true
+        severity_on_fail: S2
+
+  - id: autosave
+    instruction: "等待 5 秒让 autosave 触发，然后验证内容已持久化（reload 后内容仍在）"
+    key_node: true
+    max_actions: 6
+    on_failure: stop
+    assertions:
+      - id: content-persisted
+        kind: state
+        target: "reload 后正文长度"
+        operator: gte
+        expected: 200
+        severity_on_fail: S0
+        evidence: [screenshot, log]
+
+success_criteria:
+  - id: no-blocking-error
+    kind: no_page_error
+    operator: equals
+    expected: true
+    severity_on_fail: S0
+max_total_actions: 60

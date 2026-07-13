@@ -1,0 +1,24 @@
+{
+  "name": "user-simulator",
+  "version": "1.0.0",
+  "description": "AI-driven product-level user simulation, bug discovery, UX evaluation, evidence capture, and fix verification for Electron and Web apps.",
+  "author": {
+    "name": "ACCSCI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "user-simulation",
+    "product-qa",
+    "playwright",
+    "electron",
+    "web-testing",
+    "ux-testing",
+    "visual-testing",
+    "performance",
+    "bug-finding",
+    "exploratory-testing",
+    "closed-loop",
+    "fix-verification"
+  ],
+  "homepage": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/user-simulator"
+}

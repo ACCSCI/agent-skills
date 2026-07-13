@@ -1,0 +1,32 @@
+{
+  "name": "user-simulator",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Runtime scripts for the user-simulator skill. Pinned to Playwright 1.61.1 to match existing Electron/Web projects in this workspace.",
+  "bin": {
+    "user-simulator": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@playwright/test": "1.61.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "playwright": "1.61.1",
+    "playwright-core": "1.61.1",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "5.5",
+    "vitest": "^2.1.9"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

@@ -1,0 +1,55 @@
+schema_version: "1.0"
+kind: story
+id: free-explore-main-features
+name: "主功能自由探索"
+mode: explore
+persona_ref: examples/personas/first-time-user.yaml
+start_path: "/workspace/empty"
+seed: 7
+safety:
+  allow_destructive_actions: false
+  allow_external_navigation: false
+  allowed_origins:
+    - http://localhost:*
+monitoring:
+  checkpoint_policy: key_nodes
+  capture_performance: true
+goals:
+  - id: understand-onboarding
+    intent: "理解新手引导流程"
+    priority: 4
+    success_signal: "完成 onboarding 或识别出 onboarding 入口"
+  - id: create-document
+    intent: "创建一份新文档"
+    priority: 5
+    success_signal: "看到新建的文档/章节"
+  - id: edit-content
+    intent: "输入并编辑一些内容"
+    priority: 5
+    success_signal: "编辑器显示用户输入"
+  - id: discover-ai-feature
+    intent: "找到并尝试 AI 相关功能"
+    priority: 3
+    success_signal: "触发 AI 调用或看到 AI 面板"
+  - id: save-and-resume
+    intent: "验证内容会被保存，下次回来仍能看到"
+    priority: 5
+    success_signal: "刷新或重开后内容仍在"
+coverage_targets:
+  - area: "顶部导航"
+    minimum_interactions: 2
+  - area: "侧边栏 / 文件列表"
+    minimum_interactions: 3
+  - area: "编辑器 / 输入区"
+    minimum_interactions: 5
+  - area: "AI 面板 / 续写入口"
+    minimum_interactions: 1
+  - area: "设置 / 偏好"
+    minimum_interactions: 1
+max_steps: 20
+novelty_threshold: 0.25
+stagnation_limit: 4
+excluded_areas:
+  - 账户/计费
+  - 删除/销毁操作
+stop_when_goals_met: true

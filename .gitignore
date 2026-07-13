@@ -23,3 +23,7 @@ Thumbs.db
 
 # Git
 *.orig
+
+# Node
+node_modules/
+package-lock.json

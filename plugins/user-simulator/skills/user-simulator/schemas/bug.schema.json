@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/user-simulator/schemas/bug.schema.json",
+  "title": "Bug (Round 1 + Round 2)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bug_id",
+    "fingerprint",
+    "type",
+    "severity",
+    "confidence",
+    "title",
+    "first_seen_run"
+  ],
+  "properties": {
+    "bug_id": {
+      "type": "string",
+      "pattern": "^bug-[0-9a-f]{8,16}$"
+    },
+    "fingerprint": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "description": "Stable hash over detector+step+route+element+normalized-failure. NEVER over title text or screenshot bytes."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["functional", "visual", "ux", "performance"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["S0", "S1", "S2", "S3"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "route": { "type": "string", "maxLength": 500 },
+        "window": { "type": "string", "maxLength": 200 },
+        "element": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "expected": { "type": "string", "maxLength": 500 },
+    "actual": { "type": "string", "maxLength": 500 },
+    "reproduction_steps": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 500 }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "screenshots": { "type": "array", "items": { "type": "string" } },
+        "snapshots": { "type": "array", "items": { "type": "string" } },
+        "logs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "detectors": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "assertion_failure",
+          "console_error",
+          "page_error",
+          "request_failure",
+          "crash",
+          "vision_visual",
+          "vision_ux",
+          "performance_threshold",
+          "novelty_loop",
+          "exit_unexpected"
+        ]
+      }
+    },
+    "first_seen_run": {
+      "type": "string",
+      "pattern": "^[0-9]{8}-[0-9]{6}-[a-z0-9]{4,8}$"
+    },
+    "candidate": {
+      "type": "boolean",
+      "default": false,
+      "description": "true = model-only finding, not promoted to confirmed bug"
+    }
+  }
+}

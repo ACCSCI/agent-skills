@@ -1,0 +1,18 @@
+schema_version: "1.0"
+kind: persona
+id: first-time-writer
+name: "Xiao Ming"
+role: "首次使用该写作工具的小说作者"
+experience_level: first_time
+attention_to_detail: 3
+patience: 3
+language: zh-CN
+domain_knowledge:
+  - 小说写作
+  - 中文排版
+accessibility_needs:
+  - keyboard-only
+behavior_notes: |
+  对新工具的隐式快捷键、隐藏菜单和专业术语不熟悉。
+  当操作长时间无反馈或遇到阻碍时，会尝试回退或关闭重开。
+  不会主动搜索产品文档，依赖界面提供的可发现性。

@@ -13,12 +13,17 @@
     {
       "name": "speedpr",
       "source": "./plugins/speedpr",
-      "description": "Drive the current branch to 'Ready To Merge': detect phase A→B→C→D, handle review threads (GraphQL), CI, and merge conflicts. Supports /loop for polling and an `auto` mode for merging."
+      "description": "Drive the current branch to 'Ready To Merge': auto-detect phase A→B→C→D, handle review threads (GraphQL), CI, and merge conflicts. Supports /loop for polling and an `auto` mode for merging."
     },
     {
       "name": "app-factory",
       "source": "./plugins/app-factory",
       "description": "AI Native project scaffolding factory. Initialize project + configure tooling + analyze capabilities + recommend stack + install official skills + generate CLAUDE.md. Interactive/Auto modes, 10 preset scenarios, 4 deploy platforms (Cloudflare/Vercel/AWS/Docker). Also detects existing projects and suggests safe upgrades."
+    },
+    {
+      "name": "user-simulator",
+      "source": "./plugins/user-simulator",
+      "description": "AI-driven product-level QA for Electron and Web: spawn persona-driven agents that act like real users, run task-based or exploratory flows, capture key-node evidence, find functional/visual/UX/performance bugs, and verify fixes via Round 2 comparison."
     }
   ]
 }
