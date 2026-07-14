@@ -2,8 +2,8 @@
   "name": "user-simulator",
   "private": true,
   "type": "module",
-  "version": "1.0.0",
-  "description": "Runtime scripts for the user-simulator skill. Pinned to Playwright 1.61.1 to match existing Electron/Web projects in this workspace.",
+  "version": "4.0.0",
+  "description": "Runtime scripts for the user-simulator skill (v4: project-adapter, api-verify, scaffold). Pinned to Playwright 1.61.1 to match existing Electron/Web projects.",
   "bin": {
     "user-simulator": "./dist/cli.js"
   },
@@ -17,12 +17,16 @@
     "@playwright/test": "1.61.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
+    "openapi-fetch": "^0.13.0",
+    "graphql": "^16.9.0",
+    "graphql-request": "^7.1.0",
     "playwright": "1.61.1",
     "playwright-core": "1.61.1",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "openapi-typescript": "^7.4.0",
     "typescript": "5.5",
     "vitest": "^2.1.9"
   },

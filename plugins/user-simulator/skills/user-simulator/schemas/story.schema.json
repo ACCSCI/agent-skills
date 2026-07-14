@@ -60,6 +60,15 @@
         }
       }
     },
+    "api_client": {
+      "type": "object",
+      "description": "Optional override of the API client (surface + baseUrl). When omitted, derived from .user-simulator/profile.json (ProjectProfile.api).",
+      "additionalProperties": false,
+      "properties": {
+        "surface": { "type": "string", "enum": ["openapi", "graphql", "rest"] },
+        "baseUrl": { "type": "string" }
+      }
+    },
     "task": { "type": "string", "minLength": 1, "maxLength": 1000 },
     "steps": {
       "type": "array",
@@ -155,6 +164,42 @@
         "assertions": {
           "type": "array",
           "items": { "$ref": "#/$defs/step_assertion" }
+        },
+        "api_assertions": {
+          "type": "array",
+          "description": "v4: API-level assertions run after this step (parallel to assertions[]).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind", "expect"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+              "kind": { "type": "string", "enum": ["openapi", "graphql", "rest"] },
+              "operation": { "type": "string" },
+              "query": { "type": "string" },
+              "variables": { "type": "object" },
+              "request": {
+                "type": "object",
+                "properties": {
+                  "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"] },
+                  "path": { "type": "string" },
+                  "payload": {}
+                }
+              },
+              "expect": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+                  "body": {},
+                  "matches": { "type": "string" },
+                  "latencyMs": { "type": "integer", "minimum": 0 }
+                }
+              },
+              "on_step": { "type": "string" },
+              "timeout_ms": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 },
+              "severity_on_fail": { "type": "string", "enum": ["S0", "S1", "S2", "S3"], "default": "S2" }
+            }
+          }
         },
         "on_failure": {
           "type": "string",

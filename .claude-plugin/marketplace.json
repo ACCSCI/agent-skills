@@ -23,7 +23,7 @@
     {
       "name": "user-simulator",
       "source": "./plugins/user-simulator",
-      "description": "AI-driven product-level QA for Electron and Web: spawn persona-driven agents that act like real users, run task-based or exploratory flows, capture key-node evidence, find functional/visual/UX/performance bugs, and verify fixes via Round 2 comparison."
+      "description": "AI-driven product-level QA for Electron and Web. Spawn persona-driven agents that act like real users, run task-based or exploratory flows, capture key-node evidence, find functional/visual/UX/performance bugs, and verify fixes via Round 2 comparison. v4 adds project auto-detection (detect-project), API verification (verify-api for OpenAPI/GraphQL/REST), and a runnable Playwright scaffold for projects without an existing E2E fixture."
     }
   ]
 }

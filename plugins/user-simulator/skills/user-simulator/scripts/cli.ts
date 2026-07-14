@@ -222,6 +222,107 @@ async function stopCommand(flags: Record<string, string>): Promise<number> {
   return 0;
 }
 
+// ---------------------------------------------------------------------------
+// v4 subcommands: detect-project / scaffold / verify-api
+// ---------------------------------------------------------------------------
+
+async function detectProjectCommand(flags: Record<string, string>): Promise<number> {
+  const root = flags.target;
+  if (!root) {
+    process.stderr.write("--target is required for detect-project\n");
+    return 2;
+  }
+  const { detectProject } = await import("./project-adapter/detect.js");
+  const cachePath = flags["cache-path"];
+  const profile = await detectProject(root, {
+    ...(cachePath ? { cachePath } : {}),
+    ...(flags.force === "true" ? { force: true } : {}),
+  });
+  if (flags.json === "true") {
+    process.stdout.write(`${JSON.stringify(profile, null, 2)}\n`);
+  } else {
+    process.stdout.write(`ProjectProfile (v4) for ${root}\n`);
+    process.stdout.write(`  framework: ${profile.stack.framework}${profile.stack.is_monorepo ? ` (monorepo: ${profile.stack.monorepo_tool})` : ""}\n`);
+    process.stdout.write(`  dev: ${profile.dev.command} (port ${profile.dev.port})\n`);
+    process.stdout.write(`  routes: ${profile.routes.type}${profile.routes.entries.length > 0 ? ` (${profile.routes.entries.length} entries)` : ""}\n`);
+    process.stdout.write(`  api: ${profile.api.surface}${profile.api.endpoint ? ` @ ${profile.api.endpoint}` : ""}\n`);
+    process.stdout.write(`  state: ${profile.state.map((s) => s.library).join(", ")}\n`);
+    process.stdout.write(`  ui: ${profile.ui.componentLib}\n`);
+  }
+  return 0;
+}
+
+async function scaffoldCommand(flags: Record<string, string>): Promise<number> {
+  const root = flags.target;
+  if (!root) {
+    process.stderr.write("--target is required for scaffold\n");
+    return 2;
+  }
+  const { detectProject } = await import("./project-adapter/detect.js");
+  const { scaffoldProject } = await import("./scaffold/scaffold.js");
+  const profile = await detectProject(root, { force: flags.force === "true" });
+  const result = await scaffoldProject(root, profile, { force: flags.force === "true" });
+  if (result.electronDeferredTo) {
+    process.stdout.write(`${result.electronDeferredTo}\n`);
+    return 0;
+  }
+  if (result.refused.length > 0) {
+    process.stderr.write(`refused to overwrite (use --force): ${result.refused.join(", ")}\n`);
+    return 4;
+  }
+  process.stdout.write(`Scaffold complete (${result.filesWritten.length} files written${result.packageJsonPatched ? " + package.json" : ""}${result.gitignorePatched ? " + .gitignore" : ""})\n`);
+  for (const f of result.filesWritten) process.stdout.write(`  + ${f}\n`);
+  process.stdout.write(`\nTo run: cd ${root} && npx playwright test\n`);
+  return 0;
+}
+
+async function verifyApiCommand(flags: Record<string, string>): Promise<number> {
+  const root = flags.target;
+  const storyPath = flags.story;
+  if (!root || !storyPath) {
+    process.stderr.write("--target and --story are required for verify-api\n");
+    return 2;
+  }
+  const { detectProject } = await import("./project-adapter/detect.js");
+  const { AssertionRunner } = await import("./api-verify/assertion-runner.js");
+  const { readFile } = await import("node:fs/promises");
+  const { parse: parseYaml } = await import("yaml");
+
+  const profile = await detectProject(root);
+  if (profile.api.surface === "none") {
+    process.stderr.write(`ProjectProfile.api.surface = "none" — nothing to verify. Run \`user-simulator detect-project --target ${root}\` to inspect.\n`);
+    return 5;
+  }
+
+  const story = parseYaml(await readFile(storyPath, "utf8")) as { steps?: Array<{ id: string; api_assertions?: Array<Record<string, unknown>> }> };
+  const allAssertions: Array<{ assertion: Record<string, unknown>; onStep: string }> = [];
+  for (const step of story.steps ?? []) {
+    // When --step <id> is given, only run that step's assertions
+    if (flags.step && step.id !== flags.step) continue;
+    for (const a of step.api_assertions ?? []) {
+      allAssertions.push({ assertion: a, onStep: step.id });
+    }
+  }
+  if (allAssertions.length === 0) {
+    process.stdout.write(`Story${flags.step ? ` step ${flags.step}` : ""} has no api_assertions — nothing to verify.\n`);
+    return 0;
+  }
+
+  const runner = new AssertionRunner({ api: profile.api });
+  const results = await runner.runAll({ assertions: allAssertions.map((a) => a.assertion as never) });
+
+  let pass = 0;
+  let fail = 0;
+  for (const r of results) {
+    const status = r.status === "pass" ? "✓" : r.status === "fail" ? "✗" : "?";
+    process.stdout.write(`${status} ${r.assertion_id} (${r.duration_ms}ms): ${r.message}\n`);
+    if (r.status === "pass") pass++;
+    else fail++;
+  }
+  process.stdout.write(`\n${pass} pass, ${fail} fail (of ${results.length})\n`);
+  return fail === 0 ? 0 : 1;
+}
+
 function renderVerificationReport(diff: ReturnType<typeof compareRounds>): string {
   const lines: string[] = [`# Round 2 Verification Report\n`, `\n**Verdict**: ${diff.verdict}\n`, `\n**Reason**: ${diff.reason}\n`];
   if (diff.targeted.length) {
@@ -313,7 +414,7 @@ async function recordInfraFailure(args: {
   return { manifest, failure, hint: cls.reason };
 }
 
-type Subcommand = "validate" | "launch" | "detect" | "report" | "compare" | "stop";
+type Subcommand = "validate" | "launch" | "detect" | "report" | "compare" | "stop" | "detect-project" | "scaffold" | "verify-api";
 
 async function runSubcommand(sub: Subcommand, flags: Record<string, string>): Promise<number> {
   switch (sub) {
@@ -323,19 +424,23 @@ async function runSubcommand(sub: Subcommand, flags: Record<string, string>): Pr
     case "report":   return reportCommand(flags);
     case "compare":  return compareCommand(flags);
     case "stop":     return stopCommand(flags);
+    case "detect-project": return detectProjectCommand(flags);
+    case "scaffold":       return scaffoldCommand(flags);
+    case "verify-api":     return verifyApiCommand(flags);
   }
 }
 
 async function main(): Promise<void> {
   const sub = process.argv[2] as Subcommand | undefined;
   const flags = parseFlags(process.argv.slice(3));
-  if (!sub || !["validate", "launch", "detect", "report", "compare", "stop"].includes(sub)) {
-    process.stderr.write(`unknown subcommand: ${sub}\nusage: user-simulator <validate|launch|detect|report|compare|stop> [--flags]\n`);
+  if (!sub || !["validate", "launch", "detect", "report", "compare", "stop", "detect-project", "scaffold", "verify-api"].includes(sub)) {
+    process.stderr.write(`unknown subcommand: ${sub}\nusage: user-simulator <validate|launch|detect|report|compare|stop|detect-project|scaffold|verify-api> [--flags]\n`);
     process.exit(2);
   }
-  // Pre-flight for any subcommand that may touch Playwright. Validate is the
-  // exception — schema validation is useful even before Playwright is set up.
-  if (sub !== "validate" && sub !== "stop") {
+  // Pre-flight for any subcommand that may touch Playwright. detect-project,
+  // scaffold, and verify-api are file-only / fetch-only and don't need it.
+  // Validate is read-only; stop is intent-only.
+  if (sub !== "validate" && sub !== "stop" && sub !== "detect-project" && sub !== "scaffold" && sub !== "verify-api") {
     const probe = flags["artifact-root"] ?? `.user-simulator/runs/latest`;
     const startedAt = new Date().toISOString();
     const platform = (flags.platform as "web" | "electron" | undefined) ?? "web";

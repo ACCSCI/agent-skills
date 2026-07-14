@@ -1,6 +1,6 @@
 ---
 name: user-simulator
-description: "AI 驱动的产品级 QA：生成具有人设的模拟用户，在 Electron 与 Web 应用中执行给定任务或自由探索，记录关键节点日志/截图，发现功能、视觉、UX 与性能问题，并在修复后进行 Round 2 对比验证。Use this when the user asks to 模拟用户、用户测试、探索式测试、找 UI bug、评估 UX、验证修复，or asks to have AI agents operate an Electron or web app like real users, run task-based or exploratory product QA, capture evidence, or compare before/after fixes."
+description: "AI 驱动的产品级 QA：生成具有人设的模拟用户，在 Electron 与 Web 应用中执行给定任务或自由探索，记录关键节点日志/截图，发现功能、视觉、UX 与性能问题，并在修复后进行 Round 2 对比验证。v4 新增：项目自适应（detect-project）、API 验证（OpenAPI/GraphQL/REST，verify-api）、E2E scaffold 生成。Use this when the user asks to 模拟用户、用户测试、探索式测试、找 UI bug、评估 UX、验证修复、API 验证、项目结构探测、生成 E2E 测试, or asks to have AI agents operate an Electron or web app like real users, run task-based or exploratory product QA, capture evidence, compare before/after fixes, auto-detect a project's stack, run API assertions, or scaffold a Playwright starter."
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion, Agent, Skill, mcp__MiniMax__understand_image
 argument-hint: --target <url|path> --platform <auto|web|electron> --mode <task|explore> [--persona <yaml>] [--story <yaml>] [--task "<text>"] [--max-steps <n>] [--round <1|2>] [--baseline <run-id>] [--fix <none|suggest|apply>]
 ---
@@ -30,6 +30,61 @@ AI 驱动的产品级 QA。生成具有人设（Persona）的模拟用户子代�
 - ❌ 默认禁止外部导航（点链接跳到外站）
 - ❌ 默认禁止生产环境；显式 `--env=production` 才允许
 - ✅ Story 的 `safety` 字段可单独放宽，但每次都会要求确认
+
+---
+
+## v4 新增能力（Project-adapter / API 验证 / Scaffold）
+
+v4 在 v1 基础上加了三层（与 v1 完全兼容，旧 Story 和旧调用方式不需改动）：
+
+| 能力 | 子命令 | 作用 |
+|---|---|---|
+| **项目自适应** | `detect-project --target <dir>` | 读 `package.json` / 框架配置 / 路由树 / API schema → 写 `.user-simulator/profile.json` 缓存 |
+| **API 验证** | `verify-api --target <dir> --story <yaml> [--step <id>]` | 跑 Story 中每个 step 的 `api_assertions[]`（OpenAPI / GraphQL / REST） |
+| **Scaffold** | `scaffold --target <dir> [--force]` | 目标无 E2E fixture 时生成 5 文件 Playwright starter；Electron 目标 defer 到第三方 scaffold |
+
+**典型 v4 工作流**：
+
+```bash
+# 1. 探测项目
+user-simulator detect-project --target D:/Projects/next-universe
+
+# 2. （可选）零基建项目生成 starter
+user-simulator scaffold --target D:/tmp/empty-app
+
+# 3. 跑 Story；每个 step 完成后由 Agent 调 verify-api 跑 API 断言
+user-simulator --target D:/Projects/next-universe --mode task --story story.yaml
+# Agent 在 step "create-chapter" 完成后：
+user-simulator verify-api --target D:/Projects/next-universe --story story.yaml --step create-chapter
+```
+
+### `ProjectProfile` 缓存位置
+
+```
+<project>/.user-simulator/profile.json
+```
+
+- 启动 v1 `launch` 时自动读；若 `--no-profile` 强制走 v1 启发式
+- `--profile <path>` 显式指定其他位置
+- 改项目结构后 `detect-project` 重新生成（或加 `--force`）
+
+### API 验证在 v4 中的工作模式
+
+v4 **不在 persona-loop 内部自动跑 API 断言**——persona-loop 保持单一职责（UI 动作循环）。Claude Code Agent 在每个 step 完成后**显式**调 `verify-api --step <id>` 子命令。这样：
+
+- ✅ API 断言失败不会拖慢 UI 循环
+- ✅ Agent 可以选择 step 级别或全量跑
+- ✅ verify-api 可独立用于 CI（不需要 Playwright 启动 UI）
+- ⚠️ Agent 必须在 story 流程里记得调
+
+### v4 限制（叠加在 v1 限制之上）
+
+- **不在 v1 运行时执行 generated scaffold**：scaffold 是开发者面向的；手动跑 `npx playwright test` 验证。v1 的 `run-web` / `run-electron` 不执行 spec。
+- **tRPC 无运行时 introspection**：纯 tRPC 需先装 `@trpc/openapi` 才能走 OpenAPI 流水线；否则断言返回 `skipped`。
+- **Monorepo 探测只在 target 根**：遇 `pnpm-workspace.yaml` / `turbo.json` 打印 warning，需要用户指定 `apps/web` 子目录。
+- **GraphQL introspection 鉴权**：需 `--api-header "Authorization: Bearer ..."` 显式传。
+- **OpenAPI/GraphQL 大 spec**：client-cache 每次 run 重新拉取；不做跨 run 持久化。
+- **API hang 阻塞 round**：默认 5s per-assertion timeout；可调 `--api-timeout`。
 
 ---
 
@@ -204,11 +259,39 @@ explore mode 必填：
 
 1. `ensureInit()` — 启动或复用 Playwright session
 2. 记录 `before_fingerprint`
-3. 执行动作
+3. **执行动作（包括必要时的滚动）** — 若页面有滚动内容，必须在每一步或每两步之间执行一次完整纵向滚动（`page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))`），让屏幕可见区域经过所有折叠内容。具体规则见下方「滚动要求」
 4. `captureSnapshot` —— 截图 + DOM 摘要 + 控制台 / pageerror / 失败请求 + 性能采样
 5. 写 `events.ndjson`（append-only）
 6. 必要时（key_node / failures_only / each_step）写 `snapshots/<id>.json` + `screenshots/<id>.png`
 7. 返回 `ActionResult` JSON 给子代理
+
+### 滚动要求（v1 强制）
+
+在每次检查点（checkpoint）或每次 step 开始时，**必须判断页面是否可以纵向滚动**：
+
+```js
+const scrollable = await page.evaluate(() => {
+  const el = document.scrollingElement ?? document.documentElement;
+  return el.scrollHeight > el.clientHeight + 10; // 10px 阈值避免误差
+});
+```
+
+**若 `scrollable = true`**：
+1. 从当前位置开始，逐步向下滑动至**最底部**
+2. 每滑动一个 viewport 高度（或稍大）截图一张，记录为关键节点证据
+3. 到达底部后，**回滚到顶部**（`window.scrollTo(0, 0)`）或滚回当前交互焦点
+4. 把所有滚动截图写入 `snapshots/` 并标记 `contains: "below-fold"`
+
+**目的**：确保以下问题不会因为内容折叠而被漏掉：
+- 隐藏的 UI 错误（截断、溢出、层级错乱）
+- 底部按钮/表单元素状态异常
+- 大列表 / 长文案渲染问题
+- 长表单底部提交按钮的可用性
+- 异常加载（内容动态拉取后下方空白）
+
+**若 `scrollable = false`**：无需滚动，直接跳过。
+
+---
 
 ### 阶段 5：检测、分类与去重
 
@@ -257,12 +340,15 @@ v1 不并发多窗口——选择 `firstWindow()`。多窗口场景在 Round 2 �
 ### 动作循环
 
 ```
-1. observe   ← 拿当前 fingerprint + snapshot + signals
-2. decide    ← AI 推理：下一步做什么
-3. act       ← click / fill / type / press / select / hover / wait / assert
-4. checkpoint（仅 key_node / failures_only / each_step）
-5. repeat
+1. observe        ← 拿当前 fingerprint + snapshot + signals
+2. scroll-check   ← 若页面 scrollable，逐步向下滑至最底并截图；记录所有 below-fold 内容
+3. decide         ← AI 推理：下一步做什么（考虑 scroll 后才可见的元素）
+4. act            ← click / fill / type / press / select / hover / wait / assert / scroll
+5. checkpoint     （仅 key_node / failures_only / each_step）
+6. repeat
 ```
+
+> **强制规则**：每完成 2–3 个动作（或每遇到一个新界面/弹窗）必须重跑一次完整纵向滚动检查。不能因为"这一步不需要"就跳过——**许多 bug 只在滚动到底部时才出现**。scroll 动作由 action-client 的 `scroll-down` verb 执行，它会自动等待滚动动画完成后才进行 capture。
 
 ### 停止条件
 
@@ -591,7 +677,9 @@ that Playwright will hand to `_electron.launch()`.
 - ❌ 因一次干净运行就宣称 race condition / flake / 性能回归已修复
 - ❌ 对 Native / Mobile 声称 v1 支持
 - ❌ 把 model-only 的低 confidence finding 自动升级为 confirmed bug
-- ❌ 在 README 中夸大 bug 检出率；只承诺 Recall ≠ 100%、False Positives > 0%
+- ❌ 在 README 中夸大 bug 检出率；只承诺 Recall ≠ 100%、False Positives > 0
+- ❌ **跳过滚动**：若页面可纵向滚动，不滚到底部就开始操作下方元素或声明"已完成"——折叠内容以下的 bug 完全漏掉
+- ❌ **只滚一次就停**：滚动到底部后不再回来检查，忽略了滚动后触发的懒加载内容、动态渲染或状态变化%
 
 ---
 

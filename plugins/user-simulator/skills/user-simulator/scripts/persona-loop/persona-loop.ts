@@ -150,6 +150,12 @@ export class PersonaLoop {
         case "wait":
           await this.actWait(req);
           break;
+        case "scroll_down":
+          await this.actScrollDown(req);
+          break;
+        case "scroll_up":
+          await this.actScrollUp(req);
+          break;
         case "checkpoint":
           screenshot_path = await this.actCheckpoint(req);
           break;
@@ -246,6 +252,54 @@ export class PersonaLoop {
 
   private async actWait(req: ActionRequest): Promise<void> {
     await this.page!.waitForLoadState("networkidle", { timeout: req.timeout_ms ?? 10_000 }).catch(() => undefined);
+  }
+
+  /**
+   * 向下滚动一个 viewport 高度（或到页面底部），等待稳定后截图。
+   * SKILL.md 强制规则：每 2–3 步必须完整纵向滚动一次到底部。
+   */
+  private async actScrollDown(_req: ActionRequest): Promise<void> {
+    const page = this.page!;
+    await page.evaluate(() => {
+      const el = document.scrollingElement ?? document.documentElement;
+      window.scrollBy({ top: window.innerHeight * 0.9, behavior: "smooth" });
+    });
+    // 等待滚动动画完成
+    await page.waitForFunction(() => {
+      return new Promise((resolve) => {
+        let lastY = window.scrollY;
+        const check = () => {
+          const current = window.scrollY;
+          if (current === lastY) resolve(undefined);
+          else { lastY = current; requestAnimationFrame(check); }
+        };
+        requestAnimationFrame(check);
+      });
+    }, { timeout: 2_000 }).catch(() => undefined);
+    // 稳定帧：等待网络空闲
+    await page.waitForLoadState("networkidle", { timeout: 3_000 }).catch(() => undefined);
+  }
+
+  /**
+   * 向上滚动一个 viewport 高度（或回到顶部），等待稳定后截图。
+   */
+  private async actScrollUp(_req: ActionRequest): Promise<void> {
+    const page = this.page!;
+    await page.evaluate(() => {
+      window.scrollBy({ top: -window.innerHeight * 0.9, behavior: "smooth" });
+    });
+    await page.waitForFunction(() => {
+      return new Promise((resolve) => {
+        let lastY = window.scrollY;
+        const check = () => {
+          const current = window.scrollY;
+          if (current === lastY) resolve(undefined);
+          else { lastY = current; requestAnimationFrame(check); }
+        };
+        requestAnimationFrame(check);
+      });
+    }, { timeout: 2_000 }).catch(() => undefined);
+    await page.waitForLoadState("networkidle", { timeout: 3_000 }).catch(() => undefined);
   }
 
   private async actCheckpoint(_req: ActionRequest): Promise<string> {

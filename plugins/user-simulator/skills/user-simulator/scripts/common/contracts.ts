@@ -198,6 +198,8 @@ export type ActionVerb =
   | "select"
   | "hover"
   | "wait"
+  | "scroll_down"
+  | "scroll_up"
   | "checkpoint"
   | "assert"
   | "finish";

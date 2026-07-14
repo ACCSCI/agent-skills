@@ -1,6 +1,6 @@
 {
   "name": "user-simulator",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "description": "AI-driven product-level user simulation, bug discovery, UX evaluation, evidence capture, and fix verification for Electron and Web apps.",
   "author": {
     "name": "ACCSCI"

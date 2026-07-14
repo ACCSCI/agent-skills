@@ -17,5 +17,5 @@
     "sourceMap": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "exclude": ["node_modules", "dist", "tests", "scaffold/templates/**", "schemas/**"]
 }

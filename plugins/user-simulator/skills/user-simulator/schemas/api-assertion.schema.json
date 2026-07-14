@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/user-simulator/schemas/api-assertion.schema.json",
+  "title": "ApiAssertion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "kind", "expect"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["openapi", "graphql", "rest"]
+    },
+    "operation": {
+      "type": "string",
+      "description": "OpenAPI operationId, GraphQL query/mutation name, or REST route key"
+    },
+    "query": {
+      "type": "string",
+      "description": "GraphQL only: full query/mutation string"
+    },
+    "variables": {
+      "type": "object",
+      "description": "GraphQL variables, or OpenAPI path/query parameters"
+    },
+    "request": {
+      "type": "object",
+      "description": "REST only: explicit method/path/payload",
+      "additionalProperties": false,
+      "properties": {
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"] },
+        "path": { "type": "string" },
+        "payload": { "type": ["object", "array", "string", "number", "boolean", "null"] }
+      }
+    },
+    "expect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+        "body": { "type": ["object", "array", "string", "number", "boolean", "null"] },
+        "matches": {
+          "type": "string",
+          "description": "JSONPath-like expression (e.g. '$.data.title' or 'data.title'); runner may use a simple dot-path"
+        },
+        "latencyMs": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "on_step": {
+      "type": "string",
+      "description": "The Story step id this assertion runs after. If omitted, runs after every step that contains this assertion in its api_assertions list."
+    },
+    "timeout_ms": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 },
+    "severity_on_fail": { "type": "string", "enum": ["S0", "S1", "S2", "S3"], "default": "S2" }
+  }
+}
