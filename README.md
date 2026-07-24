@@ -9,7 +9,7 @@ as a Plugin Marketplace so others can install them with a single command.
 | **speedpr** | Drive the current branch to "Ready To Merge": auto-detect phase (uncommitted → unpushed → no PR → PR exists), handle review threads via GraphQL, CI, and merge conflicts. |
 | **app-factory** | AI Native project scaffolding factory. Initialize a project, configure tooling (lint/format/hooks/CI/deploy), analyze capabilities, recommend stack, install official skills, and generate a project-specific `CLAUDE.md`. Supports `Interactive`/`Auto` modes, 10 preset scenarios (SaaS / AI / Electron / Chrome Extension / Blog / Admin / API / CLI / SDK), and 4 deploy platform templates (Cloudflare / Vercel / AWS / Docker). Also detects existing projects and suggests safe upgrades. |
 | **user-simulator** | AI-driven **product-level** QA for Electron and Web. Spawn persona-driven agents that act like real users, run task-based or exploratory flows, capture key-node evidence, find functional / visual / UX / performance bugs, and verify fixes via Round 2 comparison. v4 adds project auto-detection (`detect-project`), API verification (`verify-api` for OpenAPI / GraphQL / REST), and a runnable Playwright scaffold for projects without an existing E2E fixture. |
-| **game-soundfx** | Generate game sound effects from natural language descriptions via ByteDance Seed-TTS (豆包语音合成). Describe the sound in English — sword clash, explosion, magic spell, footsteps, UI click, AK-47 gunfire — and get a WAV/MP3/OGG file back. Supports batch generation, flexible `--params` passthrough, and loopable SFX for game engines. |
+| **soundfx** | Generate sound effects from natural language descriptions via ByteDance Seed-TTS (豆包语音合成). Describe the sound in English — sword clash, explosion, magic spell, footsteps, UI click, AK-47 gunfire — and get a WAV/MP3/OGG file back. Supports batch generation, flexible `--params` passthrough, and loopable SFX. |
 
 ## Installation
 
@@ -24,7 +24,7 @@ You have two options — pick whichever fits your setup.
 /plugin install speedpr@cc-productivity-plugins
 /plugin install app-factory@cc-productivity-plugins
 /plugin install user-simulator@cc-productivity-plugins
-/plugin install game-soundfx@cc-productivity-plugins
+/plugin install soundfx@cc-productivity-plugins
 ```
 
 That's it. The skills land in `~/.claude/skills/` and are picked up by the
@@ -44,13 +44,13 @@ cp -r cc-productivity-plugins/skills/sync-skills ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/speedpr     ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/app-factory ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/user-simulator ~/.claude/skills/
-cp -r cc-productivity-plugins/skills/game-soundfx ~/.claude/skills/
+cp -r cc-productivity-plugins/skills/soundfx ~/.claude/skills/
 # Windows (PowerShell):
 #   Copy-Item -Recurse cc-productivity-plugins\skills\sync-skills $HOME\.claude\skills\
 #   Copy-Item -Recurse cc-productivity-plugins\skills\speedpr     $HOME\.claude\skills\
 #   Copy-Item -Recurse cc-productivity-plugins\skills\app-factory $HOME\.claude\skills\
 #   Copy-Item -Recurse cc-productivity-plugins\skills\user-simulator $HOME\.claude\skills\
-#   Copy-Item -Recurse cc-productivity-plugins\skills\game-soundfx $HOME\.claude\skills\
+#   Copy-Item -Recurse cc-productivity-plugins\skills\soundfx $HOME\.claude\skills\
 ```
 
 Restart Claude Code (or type `/`) and the skills are available.
@@ -140,7 +140,7 @@ invoke the skill.
   disabled by default. Override per-Story via `safety.allow_*` flags; the
   skill will prompt for confirmation if it sees a production host.
 
-### `game-soundfx`
+### `soundfx`
 
 - **Python 3.8+** — the bundled `scripts/generate_sfx.py` uses only stdlib
   (`urllib`, `json`, `argparse`) so no pip install is needed.
@@ -168,15 +168,15 @@ cc-productivity-plugins/
 │   └── user-simulator/
 │       ├── .claude-plugin/plugin.json
 │       └── skills/user-simulator/{SKILL.md, scripts/, schemas/, examples/, tests/}
-│   └── game-soundfx/
+│   └── soundfx/
 │       ├── .claude-plugin/plugin.json
-│       └── skills/game-soundfx/{SKILL.md, scripts/generate_sfx.py}
+│       └── skills/soundfx/{SKILL.md, scripts/generate_sfx.py}
 ├── skills/                       ← Mirror of plugins/*/skills/* for manual install
 │   ├── sync-skills/
 │   ├── speedpr/
 │   ├── app-factory/
 │   └── user-simulator/
-│   └── game-soundfx/
+│   └── soundfx/
 ├── README.md
 ├── LICENSE                       ← MIT
 └── .gitignore

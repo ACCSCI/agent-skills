@@ -1,0 +1,20 @@
+{
+  "name": "soundfx",
+  "version": "1.0.0",
+  "description": "Generate sound effects from natural language descriptions using ByteDance Seed-TTS (豆包语音合成) API. For games, videos, podcasts, apps, or any project needing custom audio. Supports combat, magic, environment, UI, footsteps, creatures, weapons, ambience, and more. Batch generation, flexible --params passthrough, and loopable SFX.",
+  "author": {
+    "name": "ACCSCI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "game-audio",
+    "sound-effects",
+    "sfx",
+    "tts",
+    "bytedance",
+    "seed-tts",
+    "game-development"
+  ],
+  "homepage": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/soundfx"
+}

@@ -1,11 +1,11 @@
 ---
-name: game-soundfx
-description: Generate game sound effects from natural language descriptions using ByteDance Seed-TTS API. Use this whenever the user wants to create game audio — SFX for combat, magic spells, environment ambience, UI feedback, footsteps, creature sounds, explosions, power-ups, or any other game sound effect. Also trigger when the user mentions game audio, sound design, SFX generation, or wants to create sound effects for their game project.
+name: soundfx
+description: Generate sound effects from natural language descriptions using ByteDance Seed-TTS API. Use this whenever the user wants to create custom audio — SFX for games, videos, podcasts, apps, combat, magic spells, environment ambience, UI feedback, footsteps, creature sounds, explosions, weapons, or any other sound effect. Trigger when the user mentions sound effects, SFX, audio generation, sound design, or wants to create audio assets.
 ---
 
-# Game Sound Effect Generator
+# Sound Effect Generator
 
-Generate game sound effects from natural language descriptions using the ByteDance Seed-TTS (豆包语音合成) audio generation API.
+Generate sound effects from natural language descriptions using the ByteDance Seed-TTS (豆包语音合成) audio generation API.
 
 ## Authoritative source
 

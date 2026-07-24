@@ -26,9 +26,9 @@
       "description": "AI-driven product-level QA for Electron and Web. Spawn persona-driven agents that act like real users, run task-based or exploratory flows, capture key-node evidence, find functional/visual/UX/performance bugs, and verify fixes via Round 2 comparison. v4 adds project auto-detection (detect-project), API verification (verify-api for OpenAPI/GraphQL/REST), and a runnable Playwright scaffold for projects without an existing E2E fixture."
     },
     {
-      "name": "game-soundfx",
-      "source": "./plugins/game-soundfx",
-      "description": "Generate game sound effects from natural language descriptions via ByteDance Seed-TTS API. Combat, magic, environment, UI, footsteps, creatures, weapons — describe the sound in English and get a WAV/MP3/OGG file back. Supports batch generation, flexible --params passthrough, and loopable SFX for game engines."
+      "name": "soundfx",
+      "source": "./plugins/soundfx",
+      "description": "Generate sound effects from natural language descriptions via ByteDance Seed-TTS API. For games, videos, podcasts, apps, or any project needing custom audio — describe the sound in English and get a WAV/MP3/OGG file back. Supports batch generation, flexible --params passthrough, and loopable SFX."
     }
   ]
 }
