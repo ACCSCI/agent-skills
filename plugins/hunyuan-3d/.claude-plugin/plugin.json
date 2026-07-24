@@ -1,0 +1,24 @@
+{
+  "name": "hunyuan-3d",
+  "version": "1.0.0",
+  "description": "Tencent HY-3D text/image-to-3D API via tccli. 19 endpoints: text-to-3D, image-to-3D, multi-view, white model, sketch-to-3D, smart topology, texture generation, UV unwrap, auto-rigging, motion generation, character generation, format conversion, and more. Scenario-based parameter recommendations for web/mobile, indie, and AAA. Three.js FPS pipeline with auto GLB+draco optimization.",
+  "author": {
+    "name": "ACCSCI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "3d-generation",
+    "text-to-3d",
+    "image-to-3d",
+    "hunyuan",
+    "tencent",
+    "game-development",
+    "threejs",
+    "fbx",
+    "glb",
+    "animation",
+    "rigging"
+  ],
+  "homepage": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/hunyuan-3d"
+}

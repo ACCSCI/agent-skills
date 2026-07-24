@@ -29,6 +29,11 @@
       "name": "soundfx",
       "source": "./plugins/soundfx",
       "description": "Generate sound effects from natural language descriptions via ByteDance Seed-TTS API. For games, videos, podcasts, apps, or any project needing custom audio — describe the sound in English and get a WAV/MP3/OGG file back. Supports batch generation, flexible --params passthrough, and loopable SFX."
+    },
+    {
+      "name": "hunyuan-3d",
+      "source": "./plugins/hunyuan-3d",
+      "description": "Tencent HY-3D text/image-to-3D API via tccli. 19 endpoints covering text-to-3D, image-to-3D, multi-view, white model, sketch-to-3D, smart topology, texture generation, UV unwrap, auto-rigging, motion generation, character generation, and format conversion. Scenario-based parameter recommendations for web, indie, and AAA builds. Three.js FPS pipeline with auto GLB+draco optimization."
     }
   ]
 }

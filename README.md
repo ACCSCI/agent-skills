@@ -10,6 +10,7 @@ as a Plugin Marketplace so others can install them with a single command.
 | **app-factory** | AI Native project scaffolding factory. Initialize a project, configure tooling (lint/format/hooks/CI/deploy), analyze capabilities, recommend stack, install official skills, and generate a project-specific `CLAUDE.md`. Supports `Interactive`/`Auto` modes, 10 preset scenarios (SaaS / AI / Electron / Chrome Extension / Blog / Admin / API / CLI / SDK), and 4 deploy platform templates (Cloudflare / Vercel / AWS / Docker). Also detects existing projects and suggests safe upgrades. |
 | **user-simulator** | AI-driven **product-level** QA for Electron and Web. Spawn persona-driven agents that act like real users, run task-based or exploratory flows, capture key-node evidence, find functional / visual / UX / performance bugs, and verify fixes via Round 2 comparison. v4 adds project auto-detection (`detect-project`), API verification (`verify-api` for OpenAPI / GraphQL / REST), and a runnable Playwright scaffold for projects without an existing E2E fixture. |
 | **soundfx** | Generate sound effects from natural language descriptions via ByteDance Seed-TTS (豆包语音合成). Describe the sound in English — sword clash, explosion, magic spell, footsteps, UI click, AK-47 gunfire — and get a WAV/MP3/OGG file back. Supports batch generation, flexible `--params` passthrough, and loopable SFX. |
+| **hunyuan-3d** | Tencent HY-3D text/image-to-3D API via tccli. 19 endpoints: text-to-3D, image-to-3D, multi-view, white model, sketch-to-3D, smart topology, texture, UV unwrap, auto-rigging, motion, character generation, format conversion. Scenario recommendations for web/indie/AAA. Three.js FPS pipeline with auto GLB+draco. |
 
 ## Installation
 
@@ -25,6 +26,7 @@ You have two options — pick whichever fits your setup.
 /plugin install app-factory@cc-productivity-plugins
 /plugin install user-simulator@cc-productivity-plugins
 /plugin install soundfx@cc-productivity-plugins
+/plugin install hunyuan-3d@cc-productivity-plugins
 ```
 
 That's it. The skills land in `~/.claude/skills/` and are picked up by the
@@ -45,6 +47,7 @@ cp -r cc-productivity-plugins/skills/speedpr     ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/app-factory ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/user-simulator ~/.claude/skills/
 cp -r cc-productivity-plugins/skills/soundfx ~/.claude/skills/
+cp -r cc-productivity-plugins/skills/hunyuan-3d ~/.claude/skills/
 # Windows (PowerShell):
 #   Copy-Item -Recurse cc-productivity-plugins\skills\sync-skills $HOME\.claude\skills\
 #   Copy-Item -Recurse cc-productivity-plugins\skills\speedpr     $HOME\.claude\skills\
@@ -171,12 +174,16 @@ cc-productivity-plugins/
 │   └── soundfx/
 │       ├── .claude-plugin/plugin.json
 │       └── skills/soundfx/{SKILL.md, scripts/generate_sfx.py}
+│   └── hunyuan-3d/
+│       ├── .claude-plugin/plugin.json
+│       └── skills/hunyuan-3d/{SKILL.md, references/, scripts/hunyuan3d.py, scripts/fbx2glb.py}
 ├── skills/                       ← Mirror of plugins/*/skills/* for manual install
 │   ├── sync-skills/
 │   ├── speedpr/
 │   ├── app-factory/
-│   └── user-simulator/
-│   └── soundfx/
+│   ├── user-simulator/
+│   ├── soundfx/
+│   └── hunyuan-3d/
 ├── README.md
 ├── LICENSE                       ← MIT
 └── .gitignore
