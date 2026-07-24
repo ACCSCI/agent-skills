@@ -1,29 +1,3 @@
-# Python
+output/
+jobs.json
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Backups
-*.bak
-*.backup
-*.bak.*
-*.tmp
-
-# Git
-*.orig
-
-# Node
-node_modules/
-package-lock.json
