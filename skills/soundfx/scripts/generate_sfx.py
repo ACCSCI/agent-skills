@@ -14,6 +14,8 @@ Usage:
     --prompt "coin collect" --output coin.wav
   python generate_sfx.py --api-key KEY --prompt "rain" --output rain.wav \
     --params '{"audio_config":{"enable_subtitle":true}}'
+  python generate_sfx.py --save-key KEY          # persist key once (user config, not repo)
+  python generate_sfx.py --prompt "rain" --output rain.wav  # key auto-loaded from config
 """
 
 import argparse
@@ -39,6 +41,35 @@ def deep_merge(base: dict, override: dict) -> dict:
         else:
             result[key] = deepcopy(value)
     return result
+
+
+def get_config_path() -> str:
+    """Path to the user-level API key file (never inside the repo/skill dir)."""
+    if sys.platform == "win32":
+        base = os.environ.get("APPDATA") or os.path.expanduser("~")
+    else:
+        base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+    return os.path.join(base, "soundfx", "api_key")
+
+
+def load_saved_key() -> str | None:
+    """Read the API key from the user config file, if present."""
+    try:
+        with open(get_config_path(), "r", encoding="utf-8") as f:
+            key = f.read().strip()
+    except OSError:
+        return None
+    return key or None
+
+
+def save_key(key: str) -> str:
+    """Persist the API key to the user config file. Returns the file path."""
+    path = get_config_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        f.write(key.strip() + "\n")
+    return path
 
 
 def generate_sfx(
@@ -158,7 +189,14 @@ def parse_args():
         description="Generate game sound effects with ByteDance Seed-TTS API",
         epilog=f"Official API docs: {OFFICIAL_API_DOC}",
     )
-    parser.add_argument("--api-key", required=True, help="ByteDance API key (X-Api-Key header)")
+    parser.add_argument("--api-key", default=None,
+                        help="ByteDance API key (X-Api-Key header). Falls back to the "
+                             "SOUNDFX_API_KEY env var, then to the saved key (see --api-key-path)")
+    parser.add_argument("--save-key", metavar="KEY", default=None,
+                        help="Persist this API key to the user config file and continue "
+                             "generating. Stored outside this repo, never committed to git")
+    parser.add_argument("--api-key-path", action="store_true",
+                        help="Print the user config file path used to store/load the API key, then exit")
     parser.add_argument("--prompt", action="append", dest="prompts", default=[],
                         help="Text prompt describing the sound effect (repeatable)")
     parser.add_argument("--output", action="append", dest="outputs", default=[],
@@ -189,6 +227,20 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    if args.api_key_path:
+        print(get_config_path())
+        return
+
+    # Resolve API key: --save-key > --api-key > SOUNDFX_API_KEY env > saved user config
+    api_key = args.save_key or args.api_key or os.environ.get("SOUNDFX_API_KEY") or load_saved_key()
+    if not api_key:
+        print("ERROR: No API key found. Pass --api-key, set SOUNDFX_API_KEY, "
+              "or save one with --save-key KEY.", file=sys.stderr)
+        print(f"       Saved key path: {get_config_path()}", file=sys.stderr)
+        sys.exit(1)
+    if args.save_key:
+        print(f"API key saved to {save_key(args.save_key)}")
 
     # Parse extra params
     extra_params = None
@@ -227,7 +279,7 @@ def main():
         start = time.time()
 
         result = generate_sfx(
-            api_key=args.api_key,
+            api_key=api_key,
             prompt=prompt,
             output_path=output,
             model=args.model,

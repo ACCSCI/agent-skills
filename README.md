@@ -149,7 +149,9 @@ invoke the skill.
   (`urllib`, `json`, `argparse`) so no pip install is needed.
 - **ByteDance Seed-TTS API key** — get one from
   [火山引擎控制台 > API Key 管理](https://console.volcengine.com/speech/new/setting/apikeys?projectName=default).
-  The skill passes it via `--api-key`; it is never stored in the repo.
+  Pass it per-run with `--api-key`, set the `SOUNDFX_API_KEY` env var, or save
+  it once with `--save-key KEY` to your user config (`%APPDATA%\soundfx\api_key`
+  on Windows, `~/.config/soundfx/api_key` elsewhere). It is never stored in this repo.
 - **Network access** to `https://openspeech.bytedance.com/api/v3/tts/create`.
 
 ## Project layout

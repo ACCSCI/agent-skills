@@ -43,6 +43,21 @@ Run `python <skill_dir>/scripts/generate_sfx.py --help` for all options.
 
 Get one from [火山引擎控制台 > API Key 管理](https://console.volcengine.com/speech/new/setting/apikeys?projectName=default). Use `X-Api-Key` header (new console). If the user's key fails, direct them to the console.
 
+The script resolves the key in this order:
+
+1. `--api-key KEY` flag
+2. `SOUNDFX_API_KEY` environment variable
+3. A key saved to the user config file
+
+Save it once, then never pass it again:
+
+```bash
+python <skill_dir>/scripts/generate_sfx.py --save-key KEY
+python <skill_dir>/scripts/generate_sfx.py --prompt "sword clash" --output sword.wav  # key auto-loaded
+```
+
+The saved key lives in `%APPDATA%\soundfx\api_key` (Windows) or `~/.config/soundfx/api_key` (macOS/Linux) — a user-level path **outside the skill/repo**, so it is never committed to git. Find it with `--api-key-path`; delete the file to forget the key. On POSIX the file is chmod 600.
+
 ## Script reference
 
 `scripts/generate_sfx.py` calls `POST https://openspeech.bytedance.com/api/v3/tts/create`.
@@ -51,7 +66,9 @@ Get one from [火山引擎控制台 > API Key 管理](https://console.volcengine
 
 | Flag | Description |
 |------|-------------|
-| `--api-key` | API Key (X-Api-Key header) |
+| `--api-key` | API Key (X-Api-Key header). Optional if a key is saved or in `SOUNDFX_API_KEY` |
+| `--save-key` | Persist this API key to the user config file, then continue |
+| `--api-key-path` | Print the user config file path used to store/load the key, then exit |
 | `--prompt` | Text description of the sound (max 3000 chars). Repeatable for batch. |
 | `--output` | Output file path. Pairs with `--prompt`. |
 | `--model` | `seed-audio-1.0-multilingual` (default) or `seed-audio-1.0` (CN/EN only) |
@@ -107,6 +124,6 @@ For loopable sounds: ask for tight, self-contained bursts without long tails or 
 
 1. Understand the game genre, art style, and specific SFX needed
 2. Draft English prompts for each sound
-3. Run the script with the API key
+3. Run the script (API key auto-loaded if saved with `--save-key`)
 4. Report results (paths, sizes, durations)
 5. If API returns errors, consult the authoritative online docs first, then fix
