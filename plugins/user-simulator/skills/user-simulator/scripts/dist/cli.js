@@ -461,3 +461,7 @@ async function main() {
     }
 }
 //# sourceMappingURL=cli.js.map
+main().catch((err) => {
+  process.stderr.write(`user-simulator error: ${err instanceof Error ? err.stack ?? err.message : String(err)}` + "\n");
+  process.exit(1);
+});

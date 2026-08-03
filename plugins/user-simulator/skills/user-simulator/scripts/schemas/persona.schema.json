@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ACCSCI/cc-productivity-plugins/tree/main/plugins/user-simulator/schemas/persona.schema.json",
+  "title": "Persona",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "id", "name", "role", "experience_level", "attention_to_detail", "patience", "language"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "kind": {
+      "type": "string",
+      "const": "persona"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "experience_level": {
+      "type": "string",
+      "enum": ["first_time", "beginner", "intermediate", "expert"]
+    },
+    "attention_to_detail": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "1 = only notices main task; 5 = notices small inconsistencies"
+    },
+    "patience": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "1 = gives up quickly; 5 = willing to wait and try alternative paths"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$",
+      "description": "BCP-47 like 'zh-CN' or 'en-US'"
+    },
+    "domain_knowledge": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "description": "Concepts the persona knows in the domain, NOT familiarity with this product"
+    },
+    "accessibility_needs": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "enum": ["keyboard-only", "low-vision", "screen-reader", "color-blind", "motor-impaired"]
+      },
+      "description": "Simulation constraints only — not a substitute for real a11y testing"
+    },
+    "behavior_notes": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  }
+}
